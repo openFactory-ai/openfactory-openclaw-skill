@@ -11,14 +11,59 @@ homepage: https://openfactory.tech
 
 Build custom Linux ISOs, deploy VMs, run compliance tests, and manage infrastructure — all through natural language.
 
-## Connection
+## Setup
 
-OpenFactory exposes an MCP (Model Context Protocol) server over SSE.
+### 1. Install the skill
+
+```bash
+openclaw skills install ziegenbalg/openfactory
+```
+
+### 2. Get an API key
+
+Go to [build.openfactory.tech](https://build.openfactory.tech), sign in, then navigate to **Settings > MCP Keys** and generate a key. It will look like `of_mcp_...`.
+
+### 3. Add the MCP server to your gateway
+
+Add the OpenFactory MCP server to your OpenClaw gateway config (`~/.openclaw/config.yaml`):
+
+```yaml
+mcp:
+  servers:
+    - name: openfactory
+      url: https://build.openfactory.tech/api/mcp/sse
+      transport: sse
+      auth:
+        type: bearer
+        token: of_mcp_YOUR_API_KEY_HERE
+```
+
+Or add it via the CLI:
+
+```bash
+openclaw mcp add openfactory \
+  --url https://build.openfactory.tech/api/mcp/sse \
+  --transport sse \
+  --auth-type bearer \
+  --auth-token of_mcp_YOUR_API_KEY_HERE
+```
+
+### 4. Verify the connection
+
+```bash
+openclaw mcp test openfactory
+```
+
+This should list the 19 available tools (builds, recipes, tests, VMs).
+
+## Connection Details
 
 **Endpoint:** `https://build.openfactory.tech/api/mcp/sse`
+**Transport:** SSE (Server-Sent Events)
+**Protocol:** MCP (Model Context Protocol)
 
 **Authentication** (pick one):
-- **API Key** (recommended): Generate at the OpenFactory console under Settings > MCP Keys. Pass as `api_key` parameter on every tool call, or as `Authorization: Bearer of_mcp_<key>` HTTP header.
+- **API Key** (recommended): Pass as `Authorization: Bearer of_mcp_<key>` HTTP header, or as `api_key` parameter on each tool call.
 - **Session Token**: The first tool call returns a `session_token` in its response. Pass it to all subsequent calls for session continuity.
 
 **Session token is critical** — cloud MCP clients rotate IPs between requests. Without passing `session_token` back, each call looks like a new anonymous user.
