@@ -1,5 +1,6 @@
 ---
-name: openfactory
+name: open-factory
+slug: open-factory
 description: Build, test, and deploy custom Linux ISOs with OpenFactory. Create VMs, run compliance tests, manage recipes.
 version: 1.0.0
 author: OpenFactory
