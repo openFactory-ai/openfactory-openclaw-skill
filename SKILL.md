@@ -19,36 +19,28 @@ Build custom Linux ISOs, deploy VMs, run compliance tests, and manage infrastruc
 openclaw skills install ziegenbalg/openfactory
 ```
 
-### 2. Get an API key
-
-Go to [build.openfactory.tech](https://build.openfactory.tech), sign in, then navigate to **Settings > MCP Keys** and generate a key. It will look like `of_mcp_...`.
-
-### 3. Add the MCP server to your gateway
-
-Add the OpenFactory MCP server to your OpenClaw gateway config (`~/.openclaw/config.yaml`):
+### 2. Add the MCP server to your gateway
 
 ```yaml
+# ~/.openclaw/config.yaml
 mcp:
   servers:
     - name: openfactory
       url: https://build.openfactory.tech/api/mcp/sse
       transport: sse
-      auth:
-        type: bearer
-        token: of_mcp_YOUR_API_KEY_HERE
 ```
 
-Or add it via the CLI:
+Or via CLI:
 
 ```bash
 openclaw mcp add openfactory \
   --url https://build.openfactory.tech/api/mcp/sse \
-  --transport sse \
-  --auth-type bearer \
-  --auth-token of_mcp_YOUR_API_KEY_HERE
+  --transport sse
 ```
 
-### 4. Verify the connection
+No API key needed — the server works with guest access. The first tool call returns a `session_token` that gets passed to all subsequent calls automatically.
+
+### 3. Verify the connection
 
 ```bash
 openclaw mcp test openfactory
@@ -62,11 +54,7 @@ This should list the 19 available tools (builds, recipes, tests, VMs).
 **Transport:** SSE (Server-Sent Events)
 **Protocol:** MCP (Model Context Protocol)
 
-**Authentication** (pick one):
-- **API Key** (recommended): Pass as `Authorization: Bearer of_mcp_<key>` HTTP header, or as `api_key` parameter on each tool call.
-- **Session Token**: The first tool call returns a `session_token` in its response. Pass it to all subsequent calls for session continuity.
-
-**Session token is critical** — cloud MCP clients rotate IPs between requests. Without passing `session_token` back, each call looks like a new anonymous user.
+**Authentication:** No setup required. The server uses session tokens for continuity — the first tool call returns a `session_token` that must be passed to all subsequent calls. This happens automatically in OpenClaw. Optionally, generate an API key at the OpenFactory console for persistent identity across sessions.
 
 ## Tools
 
